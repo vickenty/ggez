@@ -4,7 +4,7 @@ use ggez::event;
 use ggez::{GameResult, Context};
 use ggez::graphics;
 use ggez::timer;
-use ggez::graphics::{ DrawMode, Point };
+use ggez::graphics::{ Drawable, DrawMode, Mesh, Point, Rect };
 use std::time::Duration;
 
 struct Item {
@@ -13,6 +13,7 @@ struct Item {
 }
 
 struct MainState {
+    circle: Mesh,
     items: Vec<Item>,
     fps: f64,
 }
@@ -20,6 +21,7 @@ struct MainState {
 impl MainState {
     fn new(ctx: &mut Context) -> GameResult<MainState> {
         let s = MainState {
+            circle: Mesh::new_circle(ctx, DrawMode::Fill, Point::default(), 1.0, 32)?,
             items: Vec::new(),
             fps: 60.0,
         };
@@ -51,7 +53,11 @@ impl event::EventHandler for MainState {
         graphics::clear(ctx);
 
         for item in &self.items {
-            graphics::circle(ctx, DrawMode::Fill, item.position, item.radius, 32)?;
+            let scale = Point {
+                x: item.radius,
+                y: item.radius,
+            };
+            self.circle.draw_ex(ctx, Rect::default(), item.position, 0.0, scale, Point::default(), Point::default())?;
         }
 
         graphics::present(ctx);
